@@ -62,7 +62,12 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
           loadSubtasks(task.id),
           loadComments(task.id),
         ]);
-        return { ...task, subtasks, comments };
+        return { 
+          ...task, 
+          subtasks, 
+          comments,
+          timeFrame: task.time_frame // Map time_frame to timeFrame
+        };
       })
     );
 
@@ -102,7 +107,12 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
 
     const maxOrder = Math.max(0, ...tasks.map(t => t.order));
     const newTask = {
-      ...task,
+      title: task.title,
+      description: task.description,
+      priority: task.priority,
+      time_frame: task.timeFrame, // Map timeFrame to time_frame
+      completed: task.completed,
+      tags: task.tags,
       user_id: user.id,
       order: maxOrder + 1,
       rank: calculateTaskRank(task as Task),
@@ -120,7 +130,41 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    setTasks(prev => [...prev, { ...data, subtasks: [], comments: [] }]);
+    // Add subtasks if any
+    if (task.subtasks?.length) {
+      const subtasksToAdd = task.subtasks.map(st => ({
+        task_id: data.id,
+        title: st.title,
+        completed: st.completed
+      }));
+
+      const { error: subtasksError } = await supabase
+        .from('subtasks')
+        .insert(subtasksToAdd);
+
+      if (subtasksError) {
+        console.error('Error adding subtasks:', subtasksError);
+      }
+    }
+
+    // Add comments if any
+    if (task.comments?.length) {
+      const commentsToAdd = task.comments.map(c => ({
+        task_id: data.id,
+        content: c.content
+      }));
+
+      const { error: commentsError } = await supabase
+        .from('comments')
+        .insert(commentsToAdd);
+
+      if (commentsError) {
+        console.error('Error adding comments:', commentsError);
+      }
+    }
+
+    // Reload tasks to get the complete data
+    await loadTasks();
   };
 
   const updateTask = async (task: Task) => {
@@ -208,7 +252,6 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     const [removed] = newTasks.splice(startIndex, 1);
     newTasks.splice(endIndex, 0, removed);
 
-    // Update order for all affected tasks
     const updates = newTasks.map((task, index) => ({
       id: task.id,
       order: index

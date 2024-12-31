@@ -1,22 +1,25 @@
-import { ReactNode } from 'react';
-
 export interface Message {
+  id: string;
   text: string;
   isBot: boolean;
+  createdAt: Date;
+}
+
+export interface ChatState {
+  messages: Message[];
+  isLoading: boolean;
+}
+
+export interface ChatActions {
+  addMessage: (text: string, isBot: boolean) => void;
+  setLoading: (loading: boolean) => void;
 }
 
 export interface ChatMessageProps {
-  text: string;
-  isBot: boolean;
+  message: Message;
 }
 
 export interface ChatInputProps {
-  value: string;
-  onChange: (value: string) => void;
-  onSend: () => void;
-}
-
-export interface ChatHeaderProps {
-  title?: string;
-  icon?: ReactNode;
+  onSend: (message: string) => void;
+  disabled: boolean;
 }
