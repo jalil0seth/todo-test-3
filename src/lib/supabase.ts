@@ -1,10 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '../types/supabase';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'http://localhost:54321';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
+// Get environment variables
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
 
-// Create client with development fallbacks
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
+}
+
+// Create Supabase client
 export const supabase = createClient<Database>(
   supabaseUrl,
   supabaseAnonKey,
@@ -12,11 +18,12 @@ export const supabase = createClient<Database>(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
+      storageKey: `sb-${projectId}-auth-token`,
     },
   }
 );
 
-// Export connection status helper
+// Helper to check connection status
 export const isSupabaseConnected = () => {
-  return import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+  return Boolean(supabaseUrl && supabaseAnonKey);
 }

@@ -10,13 +10,14 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const { signOut } = useAuth();
+  const appName = import.meta.env.VITE_APP_NAME || 'Task Manager';
 
   return (
     <div className="min-h-screen bg-[#f6f6ef]">
       <header className="bg-gradient-to-r from-[#ff6600] to-[#ff8533] px-4 py-2 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1440px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <h1 className="text-base font-bold text-white">Task Manager</h1>
+            <h1 className="text-base font-bold text-white">{appName}</h1>
             <nav className="flex gap-6">
               <a href="#" className="text-sm text-white/90 hover:text-white">Tasks</a>
               <a href="#" className="text-sm text-white/90 hover:text-white">Projects</a>
