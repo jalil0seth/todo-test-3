@@ -7,11 +7,17 @@ import { useChatState } from './useChatState';
 export function ChatBot() {
   const [{ messages, isLoading }, { addMessage }] = useChatState();
 
+  const handleSendMessage = (message: string) => {
+    if (message.trim()) {
+      addMessage(message);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full font-droid bg-[#f6f6ef]">
       <ChatHeader />
       <ChatMessages messages={messages} isLoading={isLoading} />
-      <ChatInput onSend={addMessage} disabled={isLoading} />
+      <ChatInput onSend={handleSendMessage} disabled={isLoading} />
     </div>
   );
 }

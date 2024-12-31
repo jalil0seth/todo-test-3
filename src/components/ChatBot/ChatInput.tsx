@@ -1,28 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Send } from 'lucide-react';
 import { chatStyles } from './styles';
 
 interface ChatInputProps {
-  value: string;
-  onChange: (value: string) => void;
-  onSend: () => void;
+  onSend: (message: string) => void;
+  disabled: boolean;
 }
 
-export function ChatInput({ value, onChange, onSend }: ChatInputProps) {
+export function ChatInput({ onSend, disabled }: ChatInputProps) {
+  const [input, setInput] = useState('');
+
+  const handleSend = () => {
+    if (input.trim()) {
+      onSend(input.trim());
+      setInput('');
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
     <div className={chatStyles.input.container}>
       <div className={chatStyles.input.wrapper}>
         <input
           type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && onSend()}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={handleKeyPress}
           placeholder="Type your message..."
           className={chatStyles.input.field}
+          disabled={disabled}
         />
         <button
-          onClick={onSend}
+          onClick={handleSend}
           className={chatStyles.input.button}
+          disabled={disabled}
         >
           <Send size={20} />
         </button>
